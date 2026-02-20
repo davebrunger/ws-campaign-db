@@ -7,7 +7,7 @@ import { Button, Container, Navbar, Table } from 'react-bootstrap';
 import { eq } from 'drizzle-orm';
 import { AddUserRow } from './AddUserRow';
 
-const filename = "campaign.sqlite3";
+const databaseName = "campaign";
 
 const initSql = `
     CREATE TABLE IF NOT EXISTS \`users_table\` (
@@ -22,7 +22,7 @@ const initSql = `
 
 function App() {
 
-    const client = React.useRef(useClient({filename, initSql}));
+    const client = React.useRef(useClient({databaseName, initSql}));
     const db = React.useRef(drizzle(client.current.exec));
 
     const [users, setUsers] = React.useState<User[] | undefined>(undefined);

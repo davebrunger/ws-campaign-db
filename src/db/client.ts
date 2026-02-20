@@ -1,19 +1,21 @@
 import { sqlite3Worker1Promiser } from "@sqlite.org/sqlite-wasm";
 import React from "react";
 import { applymigrations } from "./migrations";
+import { buildBackupDbUri, buildDbUri } from "./databaseNameUtilities";
 
 type ExecMethod = 'run' | 'all' | 'values' | 'get';
 type ExecResult = { rows: any[] };
 type SqlValue = any;
 
 type ClientConfig = {
-    readonly filename: string;
+    readonly databaseName: string;
     readonly initSql: string | string[];
 };
 
-type DbHandle = {
+export type DbHandle = {
     readonly promiser: Sqlite3Worker1Promiser;
     readonly dbId: string;
+    readonly databaseName : string
 }
 
 function normaliseSql(sql?: string | string[]) {
@@ -23,7 +25,15 @@ function normaliseSql(sql?: string | string[]) {
     return Array.isArray(sql) ? sql : [sql];
 }
 
-export function useClient(initial: ClientConfig) {
+export type DbClient = {
+    readonly openDb : () => Promise<DbHandle>;
+    readonly exec : (sql : string, params : any[], method : ExecMethod) => Promise<ExecResult>;
+    readonly close : () => Promise<void>; 
+    readonly vaccuumInto : (targetDatabaseName : string) => Promise<void>
+    readonly switchDb : (newConfig : ClientConfig) => Promise<void>
+}
+
+export function useClient(initial: ClientConfig) : DbClient {
 
     const config = React.useRef(initial);
     const handle = React.useRef<DbHandle | undefined>(undefined);
@@ -32,7 +42,7 @@ export function useClient(initial: ClientConfig) {
 
     React.useEffect(() => {
         config.current = initial;
-    }, [initial.filename, initial.initSql]);
+    }, [initial.databaseName, initial.initSql]);
 
     const openDb = React.useCallback(async (): Promise<DbHandle> => {
 
@@ -56,9 +66,9 @@ export function useClient(initial: ClientConfig) {
                 worker.current = (p as any).worker ?? worker.current;
             });
 
-            const { filename, initSql } = config.current;
+            const { databaseName, initSql } = config.current;
 
-            const openResult = await promiser("open", { filename: `file:${filename.replaceAll("'", "''")}?vfs=opfs` });
+            const openResult = await promiser("open", { filename: buildDbUri(databaseName) });
             const dbId = openResult.dbId;
 
             await applymigrations(promiser, dbId);
@@ -68,7 +78,7 @@ export function useClient(initial: ClientConfig) {
                     await promiser("exec", { dbId, sql });
                 }
             }
-            const newHandle = { promiser, dbId };
+            const newHandle = { promiser, dbId, databaseName };
             handle.current = newHandle;
             return newHandle;
         })();
@@ -111,9 +121,9 @@ export function useClient(initial: ClientConfig) {
 
     }, []);
 
-    const vaccuumInto = React.useCallback(async (targetFilename: string) => {
+    const vaccuumInto = React.useCallback(async (targetDatabaseName: string) => {
         const { promiser, dbId } = await openDb();
-        const sql = `VACUUM INTO file:${targetFilename.replaceAll("'", "''")}?vfs=opfs;`;
+        const sql = `VACUUM INTO ${buildBackupDbUri(targetDatabaseName)}`;
         await promiser("exec", { dbId, sql });
     }, [openDb]);
 
