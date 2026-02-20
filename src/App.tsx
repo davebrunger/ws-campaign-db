@@ -1,28 +1,29 @@
 import * as React from 'react';
 import './App.css'
-import { useClient } from './db/client'
+import { useClient } from '@whitstable-software/sqlite-opfs'
 import { drizzle } from 'drizzle-orm/sqlite-proxy';
 import { usersTable, type User } from './db/schema';
 import { Button, Container, Navbar, Table } from 'react-bootstrap';
 import { eq } from 'drizzle-orm';
 import { AddUserRow } from './AddUserRow';
+import { loadMigrations } from './db/migrations';
 
 const databaseName = "campaign";
 
-const initSql = `
-    CREATE TABLE IF NOT EXISTS \`users_table\` (
-        \`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-        \`name\` text NOT NULL,
-        \`age\` integer NOT NULL,
-        \`email\` text NOT NULL
-    );
-    --> statement-breakpoint
-    CREATE UNIQUE INDEX IF NOT EXISTS \`users_table_email_unique\` ON \`users_table\` (\`email\`);
-`;
+// const initSql = `
+//     CREATE TABLE IF NOT EXISTS \`users_table\` (
+//         \`id\` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+//         \`name\` text NOT NULL,
+//         \`age\` integer NOT NULL,
+//         \`email\` text NOT NULL
+//     );
+//     --> statement-breakpoint
+//     CREATE UNIQUE INDEX IF NOT EXISTS \`users_table_email_unique\` ON \`users_table\` (\`email\`);
+// `;
 
 function App() {
 
-    const client = React.useRef(useClient({databaseName, initSql}));
+    const client = React.useRef(useClient({databaseName, migrations : loadMigrations }));
     const db = React.useRef(drizzle(client.current.exec));
 
     const [users, setUsers] = React.useState<User[] | undefined>(undefined);

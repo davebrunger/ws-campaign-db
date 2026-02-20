@@ -11,6 +11,9 @@ importers:
       '@sqlite.org/sqlite-wasm':
         specifier: 3.51.2-build6
         version: 3.51.2-build6
+      '@whitstable-software/sqlite-opfs':
+        specifier: ^1.0.1
+        version: 1.0.1(@sqlite.org/sqlite-wasm@3.51.2-build6)(drizzle-orm@0.45.1)(react@19.2.4)
       bootstrap:
         specifier: ^5.3.8
         version: 5.3.8(@popperjs/core@2.11.8)
@@ -958,6 +961,13 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     peerDependencies:
       vite: ^4.2.0 || ^5.0.0 || ^6.0.0 || ^7.0.0
+
+  '@whitstable-software/sqlite-opfs@1.0.1':
+    resolution: {integrity: sha512-/3NqwzDKqm5QQJrGbOQczkOkf8/l9LJglhKtEn+TleprVAYDYSNe7HN8AGQJuWFADZ/2gymVj8IzLEhpx+316w==}
+    peerDependencies:
+      '@sqlite.org/sqlite-wasm': ^3.51.2-build6
+      drizzle-orm: ^0.45.1
+      react: ^19.2.0
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -2436,6 +2446,12 @@ snapshots:
       vite: 7.3.1(@types/node@24.10.13)(jiti@2.6.1)(lightningcss@1.31.1)
     transitivePeerDependencies:
       - supports-color
+
+  '@whitstable-software/sqlite-opfs@1.0.1(@sqlite.org/sqlite-wasm@3.51.2-build6)(drizzle-orm@0.45.1)(react@19.2.4)':
+    dependencies:
+      '@sqlite.org/sqlite-wasm': 3.51.2-build6
+      drizzle-orm: 0.45.1
+      react: 19.2.4
 
   acorn-jsx@5.3.2(acorn@8.15.0):
     dependencies:
