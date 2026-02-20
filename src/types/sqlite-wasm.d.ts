@@ -3,7 +3,7 @@ type SqlValue = null | number | string | Uint8Array
 type MessageTypes = "close" | "config-get" | "exec" | "open";
 
 type MessageArgs = {
-    readonly messageId?: any;
+    readonly messageId?: unknown;
 };
 
 type DbMessageArgs = MessageArgs & {
@@ -34,7 +34,7 @@ type PromiserParams = {
     readonly open: OpenMessageArgs;
 }
 
-type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
+type UnionToIntersection<U> = (U extends unknown ? (k: U) => void : never) extends (k: infer I) => void ? I : never;
 
 type IsNever<T> = [T] extends [UnionToIntersection<T>] ? true : false;
 
@@ -42,8 +42,8 @@ type Values<T> = T[keyof T]
 
 type AllOverloads<Mappings, Keys extends string> = {
     [Prop in Keys] : Prop extends keyof Mappings
-        ? (key : Prop, data : Mappings[Prop]) => Promise<any>
-        : (key : Prop) => Promise<any>;
+    ? (key : Prop, data : Mappings[Prop]) => Promise<unknown>
+    : (key : Prop) => Promise<unknown>;
 }
 
 type Overloading<Mappings, Keys extends string> =
@@ -54,7 +54,7 @@ type Overloading<Mappings, Keys extends string> =
 type Sqlite3Worker1Promiser = Overloading<PromiserParams, MessageTypes>;
 
 declare module "@sqlite.org/sqlite-wasm" {
-    export const sqlite3Worker1Promiser: (config?: any) => Promise<Sqlite3Worker1Promiser>;
-    const defaultExport: any;
+    export const sqlite3Worker1Promiser: (config?: unknown) => Promise<Sqlite3Worker1Promiser>;
+    const defaultExport: unknown;
     export default defaultExport;
 };

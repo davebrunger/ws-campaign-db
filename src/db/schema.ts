@@ -1,14 +1,5 @@
 import { int, primaryKey, sqliteTable, text, uniqueIndex} from "drizzle-orm/sqlite-core";
 
-export const usersTable = sqliteTable("users_table", {
-    id: int().primaryKey({ autoIncrement: true }),
-    name: text().notNull(),
-    age: int().notNull(),
-    email: text().notNull().unique()
-});
-
-export type User = typeof usersTable.$inferInsert;
-
 export const nodesTable = sqliteTable("node", {
     id: int().primaryKey({ autoIncrement: true }),
     type: text().notNull(),
