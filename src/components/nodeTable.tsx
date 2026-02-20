@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Table } from 'react-bootstrap';
+import { Alert, Table } from 'react-bootstrap';
 import { nodesTable, type Node } from '../db/schema';
 import { getTableColumns } from 'drizzle-orm';
 import { useClient } from '@whitstable-software/sqlite-opfs';
@@ -13,6 +13,16 @@ type Props = {
     readonly type: string
 }
 
+function toTitleCase(columnName: string): string {
+    return columnName
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/[_-]+/g, ' ')
+        .split(' ')
+        .filter(Boolean)
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+        .join(' ');
+}
+
 export function NodeTable(props: Props) {
 
     const client = useClient({ databaseName: props.databaseName, migrations: loadMigrations });
@@ -24,6 +34,15 @@ export function NodeTable(props: Props) {
     );
 
     const [nodes, setNodes] = React.useState<Node[] | undefined>(undefined);
+    const [errorMessage, setErrorMessage] = React.useState<string | undefined>(undefined);
+
+    function getNodeErrorMessage(error: unknown): string {
+        const message = error instanceof Error ? error.message.toLowerCase() : "";
+        if (message.includes("unique") || message.includes("constraint") || message.includes("node_ux")) {
+            return "A node with that name already exists for this type.";
+        }
+        return "Could not save node. Please try again.";
+    }
 
     const updateNodes = React.useCallback(async () => {
         const newNodes = await db.select().from(nodesTable).where(eq(nodesTable.type, props.type));
@@ -31,9 +50,15 @@ export function NodeTable(props: Props) {
     }, [db, props.type]);
 
     const addNode = React.useCallback(async (node: Node) => {
-        await db.insert(nodesTable).values(node);
-        await updateNodes();
-        return true;
+        try {
+            await db.insert(nodesTable).values(node);
+            setErrorMessage(undefined);
+            await updateNodes();
+            return true;
+        } catch (error) {
+            setErrorMessage(getNodeErrorMessage(error));
+            return false;
+        }
     }, [db, updateNodes]);
 
     React.useEffect(() => {
@@ -41,26 +66,29 @@ export function NodeTable(props: Props) {
     }, [updateNodes]);
 
     return (
-        <Table size='sm'>
-            <thead>
-                <tr>
-                    {displayColumns
-                        .map((column) => (
-                            <th key={column}>{column}</th>
-                        ))}
-                </tr>
-            </thead>
-            <tbody>
-                <AddNodeRow type={props.type} addNode={addNode} />
-                {nodes?.map((node) => (
-                    <tr key={node.id}>
+        <>
+            {errorMessage && <Alert variant="danger">{errorMessage}</Alert>}
+            <Table size='sm'>
+                <thead>
+                    <tr>
                         {displayColumns
                             .map((column) => (
-                                <td key={column}>{node[column]}</td>
+                                <th key={column}>{toTitleCase(String(column))}</th>
                             ))}
                     </tr>
-                ))}
-            </tbody>
-        </Table>
+                </thead>
+                <tbody>
+                    <AddNodeRow type={props.type} addNode={addNode} clearError={() => setErrorMessage(undefined)} />
+                    {nodes?.map((node) => (
+                        <tr key={node.id}>
+                            {displayColumns
+                                .map((column) => (
+                                    <td key={column}>{node[column]}</td>
+                                ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </Table>
+        </>
     );
 }

@@ -6,6 +6,7 @@ import { Home } from './home/home';
 import { Locations } from './locations/locations';
 import { Factions } from './factions/factions';
 import { Items } from './items/items';
+import { Tags } from './tags/tags';
 
 const databaseName = "campaign";
 
@@ -20,6 +21,7 @@ export function App() {
                         <Nav.Link as={Link} to="/locations">Locations</Nav.Link>
                         <Nav.Link as={Link} to="/factions">Factions</Nav.Link>
                         <Nav.Link as={Link} to="/items">Items</Nav.Link>
+                        <Nav.Link as={Link} to="/tags">Tags</Nav.Link>
                     </Nav>
                 </Container>
             </Navbar>
@@ -31,6 +33,7 @@ export function App() {
                         <Route path="locations" element={<Locations databaseName={databaseName} />} />
                         <Route path="factions" element={<Factions databaseName={databaseName} />} />
                         <Route path="items" element={<Items databaseName={databaseName} />} />
+                        <Route path="tags" element={<Tags databaseName={databaseName} />} />
                     </Route>
                 </Routes>
             </Container>

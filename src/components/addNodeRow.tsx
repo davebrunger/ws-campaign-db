@@ -5,7 +5,8 @@ import { getTableColumns } from "drizzle-orm";
 
 type Props = {
     readonly type: string,
-    readonly addNode: (node: Node) => Promise<boolean>
+    readonly addNode: (node: Node) => Promise<boolean>,
+    readonly clearError: () => void
 }
 
 function buildEmptyNode(type: string): Node {
@@ -23,6 +24,10 @@ export function AddNodeRow(props: Props) {
             .filter((column) => column !== "id" && column !== "type") as Array<keyof Omit<Node, "id" | "type">>,
         []
     );
+    const canAddNode = React.useMemo(
+        () => editableColumns.every((column) => node[column].trim().length > 0),
+        [editableColumns, node]
+    );
 
     async function addNode() {
         const added = await props.addNode(node);
@@ -32,12 +37,17 @@ export function AddNodeRow(props: Props) {
         setNode(buildEmptyNode(props.type));
     }
 
+    function handleChange(column: keyof Omit<Node, "id" | "type">, value: string) {
+        setNode({ ...node, [column]: value } as Node);
+        props.clearError();
+    }
+
     return (
         <tr>
             {editableColumns.map((column) => (
-                    <td key={column}><Form.Control key={column} type="text" value={node[column]} onChange={e => setNode({ ...node, [column]: e.currentTarget.value } as Node)} /></td>
+                    <td key={column}><Form.Control key={column} type="text" value={node[column]} onChange={e => handleChange(column, e.currentTarget.value)} /></td>
                 ))}
-                <td><Button variant="success" onClick={() => addNode()}>Add</Button></td>
+                <td><Button variant="success" disabled={!canAddNode} onClick={() => addNode()}>Add</Button></td>
         </tr>
     );
 }
