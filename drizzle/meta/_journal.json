@@ -15,6 +15,27 @@
       "when": 1771584882160,
       "tag": "0001_complete_snowbird",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1771845290815,
+      "tag": "0002_tan_dakota_north",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1771845563814,
+      "tag": "0003_odd_the_leader",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1771845626894,
+      "tag": "0004_mushy_darwin",
+      "breakpoints": true
     }
   ]
 }

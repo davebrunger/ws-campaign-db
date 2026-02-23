@@ -25,6 +25,17 @@ const wasmMiddleware = () => {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), wasmMiddleware()],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router'],
+          bootstrap: ['bootstrap', 'react-bootstrap'],
+          drizzle: ['drizzle-orm', '@whitstable-software/sqlite-opfs', '@sqlite.org/sqlite-wasm'],
+        },
+      },
+    },
+  },
   server: {
     headers: {
       "Cross-Origin-Opener-Policy": "same-origin",

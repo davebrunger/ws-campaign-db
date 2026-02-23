@@ -1,9 +1,11 @@
-import { int, primaryKey, sqliteTable, text, uniqueIndex} from "drizzle-orm/sqlite-core";
+import { sql } from "drizzle-orm";
+import { check, int, primaryKey, sqliteTable, text, uniqueIndex} from "drizzle-orm/sqlite-core";
 
 export const nodesTable = sqliteTable("node", {
     id: int().primaryKey({ autoIncrement: true }),
     type: text().notNull(),
-    name: text().notNull()
+    name: text().notNull(),
+    summary: text().notNull()
 }, (table) => [
     uniqueIndex("node_ux").on(table.name, table.type)
 ]);
@@ -12,9 +14,11 @@ export type Node = typeof nodesTable.$inferInsert;
 
 export const edgesTable = sqliteTable("edge", {
     fromId : int().notNull().references(() => nodesTable.id),
-    toId : int().notNull().references(() => nodesTable.id)
+    toId : int().notNull().references(() => nodesTable.id),
+    type : text().notNull()
 }, (table) => [
-    primaryKey({columns : [table.fromId, table.toId]})
+    primaryKey({columns : [table.fromId, table.toId]}),
+    check("edge_type_non_empty", sql`length(${table.type}) > 0`)
 ]);
 
 export type Edge = typeof edgesTable.$inferInsert;
